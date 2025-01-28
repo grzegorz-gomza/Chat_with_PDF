@@ -21,6 +21,10 @@ from langchain_community.embeddings import (
 import openai
 from langchain_core import chat_history
 
+
+from langgraph.checkpoint.memory import MemorySaver
+
+
 import os
 
 from htmlTemplates import css, bot_template, user_template
@@ -59,13 +63,19 @@ def get_vectorstore(text_chunks):
 
 
 def get_conversation_chain(vectorstore):
+    ### LLM ###
+
     # For running with OpenAI API
     llm = ChatOpenAI()
 
     # For running local LLM with LM Studio
     # llm = ChatOpenAI(openai_api_base="http://localhost:1234/v1", api_key="lm-studio")
 
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    ### Memory ###
+    # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+    memory = MemorySaver()
+
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm, retriever=vectorstore.as_retriever(), memory=memory
     )
